@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Férias da equipe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style id="css">
+/* VOICE: sóbrio, de escritório público; claro para quem consulta e para quem imprime.
+   IDEA: o planejador anual de parede, um mês por faixa, cada servidor numa linha.
+   PICTURE: a própria grade do ano, com os períodos como barras contínuas.
+   COLOUR and TYPE: preto e branco + menta #b8f5d0; Space Grotesk 700 para números, Inter no texto.
+   LAYOUT: faixa menta com título e resumo; grade de 12 meses; lista de períodos; impressão A4 paisagem. */
+:root{color-scheme:light dark;--bg:light-dark(#fff,#0b0b0b);--ink:light-dark(#0b0b0b,#f2f2f2);--mute:light-dark(#666,#9a9a9a);--line:light-dark(#e6e6e6,#262626);--we:light-dark(#f3f3f3,#171717);--band:light-dark(#b8f5d0,#0f1a14);--bink:light-dark(#0b0b0b,#b8f5d0);--ap:light-dark(#0b0b0b,#b8f5d0);--pl:light-dark(#b8f5d0,#2c5a40);--red:light-dark(#c8302a,#ff6b61)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+h1,h2,.num{font-family:"Space Grotesk",Inter,sans-serif}
+.band{padding:clamp(24px,4vw,48px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+.top{background:var(--band);color:var(--bink);padding-block:18px}
+.row{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between}
+h1{font-size:clamp(24px,3vw,30px);line-height:1.1;margin:0;text-wrap:balance}
+.yr{display:inline-flex;align-items:center;gap:6px}
+.yr button{width:44px;height:44px;border-radius:50%;border:1.5px solid currentColor;background:none;color:inherit;font-size:20px;cursor:pointer}
+.acts{display:flex;gap:10px;flex-wrap:wrap}
+button{font:inherit}
+.pri,.ghost{min-height:40px;padding:0 16px;border-radius:10px;cursor:pointer;font-weight:600}
+.pri{background:var(--bink);color:var(--band);border:0}
+.ghost{background:none;color:inherit;border:1.5px solid currentColor}
+.danger{color:var(--red)}
+button:focus-visible,input:focus-visible,select:focus-visible,td:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.team{list-style:none;padding:0;margin:14px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 16px}
+.team li{border-top:1.5px solid currentColor;padding-top:6px;font-size:13px;line-height:1.35}
+.team b{display:block;font-size:15px}
+.team span{opacity:.75}
+.team .num{display:inline;font-size:16px;font-weight:700;opacity:1}
+.team .num small{font-size:13px;font-weight:500;opacity:.75}
+.alert{margin:10px 0 0;font-size:14px}
+.flt{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:12px 0 0;font-size:14px}
+.flt>span:first-child{font-weight:600;margin-right:2px}
+.flt button{min-height:36px;padding:0 12px;border-radius:99px;border:1.5px solid currentColor;background:none;color:inherit;cursor:pointer;font-weight:500;font-size:14px}
+.flt button[aria-pressed=true]{background:var(--bink);color:var(--band)}
+.flt .tog[aria-pressed=false]{opacity:.5;text-decoration:line-through}
+.flt .tog .dot{width:10px;height:10px;margin-right:6px}
+.flt .sep{width:1px;height:24px;background:currentColor;opacity:.3;margin:0 6px}
+.alert strong{font-family:"Space Grotesk",Inter,sans-serif;font-size:15px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--mute);margin:0 0 16px}
+.legend i{display:inline-block;width:22px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px;border:1px solid var(--line)}
+.scroll{overflow-x:auto}
+.cal{border-collapse:separate;border-spacing:0;width:100%;min-width:900px;table-layout:fixed;font-size:13px;margin-bottom:22px}
+.cal th:first-child{width:150px;text-align:left;position:sticky;left:0;background:var(--bg);z-index:1;padding:0 10px 0 0;font-weight:600}
+.cal thead th{font-weight:400;padding:4px 0;text-align:center;border-bottom:1.5px solid var(--ink)}
+.cal thead th.mn{font:700 18px "Space Grotesk",sans-serif;vertical-align:bottom}
+.cal thead b{display:block;font:600 12px "Space Grotesk",sans-serif}
+.cal thead small{display:block;font-size:10px;color:var(--mute)}
+.cal thead th.hol b,.cal thead th.hol small{color:var(--red)}
+.cal td{height:28px;border-bottom:1px solid var(--line);border-left:1px solid var(--line);cursor:pointer;padding:0}
+.cal tbody th{border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal .we,.cal .hol{background:var(--we)}
+.cal td.x,.cal th.x{background:none;cursor:default;border-left-color:transparent}
+.cal td.fe{background:var(--c,var(--ap))}
+.cal td.lp{background-color:color-mix(in srgb,var(--c,#888) 30%,transparent);background-image:repeating-linear-gradient(135deg,var(--c,#888) 0 2px,transparent 2px 6px)}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--c);margin-right:7px;vertical-align:0}
+.msec{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start}
+@media(max-width:960px){.msec{grid-template-columns:minmax(0,1fr)}}
+.msec.n3{grid-template-columns:minmax(0,1fr)}
+.n3 .up{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));column-gap:28px}
+.mctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 14px}
+.mctl .rnd{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:none;color:var(--ink);font-size:18px;cursor:pointer}
+.mctl .txt{min-height:44px;padding:0 14px;border-radius:10px;border:1.5px solid var(--line);background:none;color:var(--ink);cursor:pointer;font-weight:600}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;margin-left:auto}
+.seg button{min-height:40px;padding:0 14px;border:0;background:none;color:var(--ink);cursor:pointer;font-weight:500}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.chk{display:flex;flex-direction:row;align-items:center;gap:8px;font-size:14px;font-weight:500;width:100%;justify-content:flex-end}
+.chk input{width:20px;height:20px;min-height:0;padding:0;accent-color:var(--ink)}
+.mcals{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:16px}
+.mcal{border:1px solid var(--line);border-radius:14px;padding:12px;container-type:inline-size}
+.mh{font:700 18px "Space Grotesk",sans-serif;margin:0 0 8px}
+.mh small{font:500 13px Inter,sans-serif;color:var(--mute)}
+.mg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.wd{font-size:11px;color:var(--mute);text-align:center;padding-bottom:2px}
+.md{min-height:58px;border-radius:7px;border:1px solid var(--line);padding:3px;display:flex;flex-direction:column;gap:2px;cursor:pointer;overflow:hidden}
+.md.w{background:var(--we)}
+.md.hd .dn{color:var(--red)}
+.md.td{box-shadow:inset 0 0 0 2px var(--ink)}
+.md:hover{border-color:var(--ink)}
+.dn{font:600 12px "Space Grotesk",sans-serif;line-height:1.2}
+.pp{display:block;width:100%;border:0;border-radius:4px;background:var(--c);color:#fff;font:600 10px/1.55 Inter,sans-serif;padding:0 4px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.pp.lp{background:color-mix(in srgb,var(--c) 16%,var(--bg));color:var(--c);box-shadow:inset 0 0 0 1.5px var(--c)}
+.pp.tn{opacity:.5}
+.pp .ab{display:none}
+@container (max-width:380px){.pp{font-size:8.5px;letter-spacing:-.2px;padding:0 2px;text-overflow:clip}.pp .lps{display:none}.md{padding:2px 1px}}
+.up{list-style:none;margin:0;padding:0}
+.resumo{margin-top:26px}
+.rh{font:700 20px "Space Grotesk",Inter,sans-serif;margin:0 0 8px}
+.rs tbody tr{cursor:pointer}.rs tbody tr:hover td{background:var(--we)}
+.upcol[hidden]{display:none}
+.up li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.up li .dot{margin:5px 0 0}
+.up b{font-weight:600}
+.up span{font-size:14px;color:var(--mute);grid-column:2}
+.up em{font-style:normal;font-size:13px;font-weight:600;grid-column:2}
+.up h3{font:700 18px "Space Grotesk",sans-serif;margin:0 0 4px}
+.hrow{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;justify-content:space-between;margin:0 0 14px}
+.hrow h2{margin:0}
+.hrow .views{margin:0}
+.hrow .views button{border-color:var(--line)}
+.hrow .views button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.cal td.tn{opacity:.45}
+.cal td.rc{background-image:repeating-linear-gradient(135deg,var(--mute) 0 1px,transparent 1px 5px);opacity:.55}
+.cal thead th.mn small{font:500 12px Inter,sans-serif;color:var(--mute)}
+.views{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
+.views button{min-height:40px;padding:0 14px;border-radius:99px;border:1.5px solid currentColor;background:none;color:inherit;cursor:pointer;font-weight:500}
+.views button[aria-pressed=true]{background:var(--bink);color:var(--band)}
+.sub{display:block;font-size:13px;color:var(--mute);white-space:normal}
+.kind{font-size:12px;font-weight:600}
+.cal td.s{border-top-left-radius:7px;border-bottom-left-radius:7px}
+.cal td.e{border-top-right-radius:7px;border-bottom-right-radius:7px}
+.cal td:not(.x):hover{box-shadow:inset 0 0 0 2px var(--ink)}
+.tag{display:inline-block;margin-left:6px;font-size:10px;font-weight:600;padding:1px 6px;border-radius:99px;border:1px solid var(--mute);color:var(--mute);vertical-align:1px}
+.cal tr.tot th{font-weight:400;color:var(--mute);font-size:12px}
+.cal tr.tot td{cursor:default;text-align:center;font:700 11px "Space Grotesk",sans-serif;color:var(--mute)}
+.cal tr.tot td.warn{color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.cal tr.tot td.crit{background:var(--red);color:#fff;box-shadow:none}
+h2{font-size:26px;margin:0 0 14px;line-height:1.1}
+.list{width:100%;border-collapse:collapse;font-size:15px}
+.list th{text-align:left;font-size:13px;color:var(--mute);font-weight:500;border-bottom:1.5px solid var(--ink);padding:8px 10px 8px 0}
+.list td{border-bottom:1px solid var(--line);padding:10px 10px 10px 0;vertical-align:top}
+.list td.n{text-align:right;font-family:"Space Grotesk",Inter,sans-serif;font-weight:700;white-space:nowrap}
+.list td.d{white-space:nowrap}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 10px;border-radius:99px;white-space:nowrap}
+.pill.Aprovada{background:var(--ap);color:var(--bg)}
+.pill.Planejada,.pill.Solicitada{background:var(--pl);color:var(--ink)}
+.link{background:none;border:0;color:var(--ink);text-decoration:underline;cursor:pointer;min-height:44px;padding:0 4px}
+.empty{color:var(--mute);padding:20px 0}
+.foot{font-size:13px;color:var(--mute);border-top:1px solid var(--line)}
+.ponly{display:none}
+.hint{font-size:13px;margin:10px 0 0}
+.ov{position:fixed;inset:0;background:rgb(0 0 0/.45);display:grid;place-items:center;padding:16px;z-index:10}
+.ov[hidden]{display:none}
+.card{background:var(--bg);color:var(--ink);border-radius:16px;padding:24px;width:min(460px,100%);display:grid;gap:14px;max-height:100%;overflow:auto}
+.card h2{margin:0}
+label{display:grid;gap:4px;font-size:14px;font-weight:500}
+input,select{font:inherit;font-size:16px;min-height:44px;padding:0 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mute{color:var(--mute);margin:0;font-size:14px}
+.err{color:var(--red);margin:0;font-size:14px;font-weight:500}
+.btns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btns span{flex:1}
+@media(max-width:600px){.two{grid-template-columns:1fr}.list{font-size:14px}.list .o{display:none}}
+@page{size:A4 landscape;margin:8mm}
+@media print{
+  :root{color-scheme:light}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-size:10px;background:#fff;color:#000}
+  .noprint,.ov{display:none!important}
+  .ponly{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1.5px solid #000;padding-bottom:4px;margin-bottom:8px}
+  .ponly b{font:700 16px "Space Grotesk",sans-serif}
+  .band{padding:0}
+  .top{background:none;color:#000}
+  .team{margin:6px 0 4px;grid-template-columns:repeat(5,1fr);gap:6px}
+  .team .num{font-size:16px}
+  .alert{margin:4px 0 8px;font-size:10px}.alert strong{font-size:11px}
+  .legend{font-size:9px;margin-bottom:6px;color:#333}
+  .scroll{overflow:visible}
+  .cal{min-width:0;font-size:9px;margin-bottom:8px;break-inside:avoid}
+  .cal th:first-child{width:105px;position:static}
+  .cal thead th.mn{font-size:12px}
+  .cal thead b{font-size:9px}.cal thead small{font-size:7px}
+  .cal td{height:15px}
+  .views,.mctl,.upcol{display:none!important}
+  .msec{display:block;break-after:page}
+  body.pcal .msec{break-after:auto}
+  body.pcal .sec-gantt,body.pcal .sec-list,body.pcal .foot,body.pcal .alert,body.pcal .team{display:none!important}
+  body.pcal .md{min-height:20px}
+  body.pcal .mcal{padding:4px 6px}
+  body.pcal .mh{font-size:11px;margin:0 0 2px}
+  body.pcal .ponly{margin-bottom:5px}
+  .mcals{grid-template-columns:repeat(3,1fr);gap:6px}
+  .mcal{break-inside:avoid;padding:6px;border-radius:8px}
+  .mg{gap:2px}.wd{font-size:8px}.dn{font-size:9px}
+  .md{min-height:26px;padding:1px;border-radius:4px}
+  .resumo{margin-top:6px}.rh{font-size:12px;margin:0 0 4px}
+  .rs{font-size:9px}.rs td,.rs th{padding:2px 8px 2px 0}.rs .pill{font-size:8px;padding:0 6px}.rs .sub{font-size:8px}
+  .mh{font-size:13px}
+  .pp{font-size:8px}
+  .tag{font-size:7px;padding:0 4px}
+  .sec-list{break-before:page}
+  .list{font-size:10px}.list td,.list th{padding:4px 8px 4px 0}
+  .list .o{display:table-cell}
+  .foot{border:0}
+}
+</style>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='none'%3E%3Crect x='2' y='2' width='44' height='44' rx='12' fill='%23b8f5d0' stroke='%230b0b0b' stroke-width='2.5'/%3E%3Crect x='11' y='14' width='26' height='22' rx='4' fill='%23ffffff' stroke='%230b0b0b' stroke-width='2.2'/%3E%3Cpath d='M11 18C11 15.79 12.79 14 15 14H33C35.21 14 37 15.79 37 18V21H11V18Z' fill='%230b0b0b'/%3E%3Cline x1='17' y1='11' x2='17' y2='16' stroke='%230b0b0b' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='31' y1='11' x2='31' y2='16' stroke='%230b0b0b' stroke-width='2.5' stroke-linecap='round'/%3E%3Crect x='15' y='24.5' width='11' height='3.5' rx='1.75' fill='%232563eb'/%3E%3Crect x='22' y='30' width='11' height='3.5' rx='1.75' fill='%230d9488'/%3E%3C/svg%3E">
+</head>
+<body>
+<div id="app"></div>
+<script type="application/json" id="state">{"team":[{"id":"tiago","name":"Tiago","abbr":"TI","color":"#2563eb","role":"Fiscalização"},{"id":"marcia","name":"Márcia","abbr":"MÁ","color":"#c026d3","role":"Fiscalização"},{"id":"evandro","name":"Evandro","abbr":"EV","color":"#ea7a12","role":"Fiscalização"},{"id":"fernando","name":"Fernando","abbr":"FE","color":"#0d9488","role":"Sobreaviso"},{"id":"marco","name":"Marco","abbr":"MC","color":"#7c3aed","role":"Sobreaviso"}],"periods":[{"id":"p1","who":"tiago","kind":"Licença-prêmio","start":"2026-11-26","end":"2026-12-11","recall":"","status":"Aprovada","note":""},{"id":"p2","who":"marcia","kind":"Licença-prêmio","start":"2026-12-17","end":"2027-01-15","recall":"2027-01-04","status":"Aprovada","note":"Chamar de volta em 04/01/2027"},{"id":"p3","who":"marcia","kind":"Férias","start":"2027-02-01","end":"2027-02-05","recall":"","status":"Aprovada","note":""},{"id":"p4","who":"marcia","kind":"Férias","start":"2027-02-22","end":"2027-02-26","recall":"","status":"Aprovada","note":""},{"id":"p5","who":"marco","kind":"Férias","start":"2026-12-21","end":"2027-01-04","recall":"","status":"Aprovada","note":""},{"id":"p6","who":"fernando","kind":"Férias","start":"2027-01-18","end":"2027-02-05","recall":"","status":"Aprovada","note":""}]}</script>
+<script id="main">
+{
+const FONT='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap';
+const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MES3=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const WK='DSTQQSS', LS='ferias-equipe-v2', STATUS=['Planejada','Solicitada','Aprovada'], KINDS=['Férias','Licença-prêmio'];
+const CSS=document.getElementById('css').textContent, MAIN=document.getElementById('main').textContent;
+let state={};
+try{state=JSON.parse(document.getElementById('state').textContent)}catch(e){}
+const norm=s=>{s=s&&typeof s==='object'?s:{};s.team=Array.isArray(s.team)?s.team:[];s.periods=Array.isArray(s.periods)?s.periods:[];
+  s.periods.forEach(p=>{p.kind=KINDS.includes(p.kind)?p.kind:'Férias';p.recall=p.recall||'';p.status=STATUS.includes(p.status)?p.status:'Planejada';p.note=p.note||''});return s};
+state=norm(state);
+let art=null,mode='pending',dirty=false,readOnly=false,timer=null,statusMsg='';
+const inFrame=(()=>{try{return window.self!==window.top}catch(e){return true}})();
+const today=new Date(),TY=today.getFullYear(),TM=today.getMonth();
+const winEndY=TM>=8?TY+1:TY;
+const VIEWS=[{k:'win',label:`${MES3[TM]}/${TY} – dez/${winEndY}`,y:TY,m:TM,n:(winEndY-TY)*12+12-TM}].concat([TY,TY+1,TY+2].map(y=>({k:'y'+y,label:String(y),y,m:0,n:12})));
+let viewK='win';
+try{const v=localStorage.getItem(LS+'-vis');if(VIEWS.some(x=>x.k===v))viewK=v}catch(e){}
+
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dn=s=>{const[a,b,c]=String(s).split('-').map(Number);return Date.UTC(a,b-1,c)/864e5};
+const ds=n=>new Date(n*864e5).toISOString().slice(0,10);
+const br=s=>String(s).split('-').reverse().join('/');
+const total=p=>dn(p.end)-dn(p.start)+1;
+const effEnd=p=>p.recall?dn(p.recall)-1:dn(p.end);
+const eff=p=>effEnd(p)-dn(p.start)+1;
+const isSob=t=>/sobreaviso/i.test(t.role||'');
+const who=id=>state.team.find(t=>t.id===id);
+const PAL=['#2563eb','#c026d3','#ea7a12','#0d9488','#7c3aed','#dc2626','#65a30d'];
+const col=t=>{const i=Math.max(0,state.team.indexOf(t));return t&&/^#[0-9a-f]{6}$/i.test(t.color||'')?t.color:PAL[i%PAL.length]};
+const abbr=t=>(t.abbr||t.name||'?').slice(0,3);
+let calY=TY,calM=TM,calN=3,pOnly=false;
+try{pOnly=localStorage.getItem(LS+'-ponly')==='1'}catch(e){}
+let sel=new Set(state.team.map(t=>t.id));
+try{const v=JSON.parse(localStorage.getItem(LS+'-sel')||'null');if(Array.isArray(v)){const f=v.filter(id=>who(id));if(f.length)sel=new Set(f)}}catch(e){}
+const VT=()=>state.team.filter(t=>sel.has(t.id));
+const grpIds=g=>state.team.filter(t=>g==='all'||(g==='sob'?isSob(t):!isSob(t))).map(t=>t.id);
+const sameSet=a=>a.length===sel.size&&a.every(id=>sel.has(id));
+const grpLabel=()=>sameSet(grpIds('all'))?'':sameSet(grpIds('fisc'))?' · Fiscalização':sameSet(grpIds('sob'))?' · Sobreaviso':' · '+VT().map(t=>t.name).join(', ');
+try{const v=+localStorage.getItem(LS+'-caln');if(v===1||v===3||v===6)calN=v}catch(e){}
+const offOn=n=>state.periods.filter(p=>sel.has(p.who)&&dn(p.start)<=n&&effEnd(p)>=n&&who(p.who)).sort((a,b)=>state.team.indexOf(who(a.who))-state.team.indexOf(who(b.who)));
+const todayN=Date.UTC(TY,TM,today.getDate())/864e5;
+function monthCal(Y,m){
+  const first=Date.UTC(Y,m,1)/864e5,nd=new Date(Date.UTC(Y,m+1,0)).getUTCDate(),wd0=new Date(first*864e5).getUTCDay();
+  let h=`<div class="mcal"><p class="mh">${MESES[m]} <small>${Y}</small></p><div class="mg">${[...WK].map(c=>`<div class="wd">${c}</div>`).join('')}`;
+  for(let i=0;i<wd0;i++)h+='<div></div>';
+  for(let d=1;d<=nd;d++){const n=first+d-1,wd=(wd0+d-1)%7,hl=hol(n);
+    const pills=offOn(n).map(p=>{const t=who(p.who);return `<button class="pp${p.kind==='Férias'?'':' lp'}${p.status!=='Aprovada'?' tn':''}" style="--c:${col(t)}" data-edit="${esc(p.id)}" title="${esc(`${t.name} · ${p.kind}: ${br(p.start)} a ${br(p.end)} · ${p.status}`)}"><span class="full">${esc(t.name)}${p.kind==='Férias'?'':'<span class="lps"> · LP</span>'}</span></button>`}).join('');
+    h+=`<div class="md${wd===0||wd===6||hl?' w':''}${hl?' hd':''}${n===todayN?' td':''}" data-d="${ds(n)}" title="${esc(hl||br(ds(n)))}"><span class="dn">${d}</span>${pills}</div>`}
+  return h+'</div></div>'}
+function calLab(){const e=Date.UTC(calY,calM+calN,0)/864e5,d=new Date(e*864e5);return calN===1?`${MESES[calM]} de ${calY}`:`${MES3[calM]}/${calY} a ${MES3[d.getUTCMonth()]}/${d.getUTCFullYear()}`}
+function resumo(){
+  const a=Date.UTC(calY,calM,1)/864e5,e=Date.UTC(calY,calM+calN,0)/864e5;
+  const lab=calLab();
+  const _u=calN===1?`${MESES[calM]} de ${calY}`:`${MES3[calM]}/${calY} a ${MES3[new Date(e*864e5).getUTCMonth()]}/${new Date(e*864e5).getUTCFullYear()}`;
+  const L=state.periods.filter(p=>sel.has(p.who)&&who(p.who)&&dn(p.start)<=e&&dn(p.end)>=a).sort((x,y)=>x.start.localeCompare(y.start));
+  const body=L.length?`<table class="list rs"><thead><tr><th>Servidor</th><th>Tipo</th><th>Período</th><th style="text-align:right">Dias</th><th>Situação</th><th class="o">Observação</th></tr></thead><tbody>${L.map(p=>{const t=who(p.who),sal=total(p)-eff(p);
+    return `<tr data-edit="${esc(p.id)}"><td><i class="dot" style="--c:${col(t)}"></i>${esc(t.name)}</td><td>${esc(p.kind)}</td><td class="d">${br(p.start)} a ${br(p.end)}${p.recall?`<span class="sub">Retorno antecipado em ${br(p.recall)} · saldo de ${sal} ${pl(sal,'dia','dias')}</span>`:''}</td><td class="n">${eff(p)}</td><td><span class="pill ${esc(p.status)}">${esc(p.status)}</span></td><td class="o">${esc(p.note)}</td></tr>`}).join('')}</tbody></table>`
+    :'<p class="empty">Nenhum afastamento nesses meses.</p>';
+  return `<div class="resumo"><h3 class="rh">Resumo dos afastamentos · ${esc(lab)}</h3><div class="scroll">${body}</div></div>`}
+function upcoming(){
+  const L=state.periods.filter(p=>sel.has(p.who)&&effEnd(p)>=todayN&&who(p.who)).sort((a,b)=>a.start.localeCompare(b.start)).slice(0,8);
+  if(!L.length)return '<p class="empty">Nenhum afastamento previsto.</p>';
+  return '<ul class="up">'+L.map(p=>{const t=who(p.who),st=dn(p.start),k=st-todayN;
+    const when=st<=todayN?`em andamento · retorna em ${br(ds(effEnd(p)+1))}`:k===1?'começa amanhã':`começa em ${k} dias`;
+    return `<li data-edit="${esc(p.id)}"><i class="dot" style="--c:${col(t)}"></i><b>${esc(t.name)} · ${esc(p.kind)}</b><span>${br(p.start)} a ${br(ds(effEnd(p)))} · ${eff(p)} dias${p.recall?' (retorno antecipado)':''}</span><em>${when}</em></li>`}).join('')+'</ul>'}
+const pl=(n,a,b)=>n===1?a:b;
+
+function easter(Y){const a=Y%19,b=Math.floor(Y/100),c=Y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return Date.UTC(Y,mo-1,da)/864e5}
+const HC={};
+function hols(Y){if(HC[Y])return HC[Y];const E=easter(Y),f=(m,d)=>Date.UTC(Y,m-1,d)/864e5;return HC[Y]=new Map([[f(1,1),'Confraternização Universal'],[E-48,'Carnaval (ponto facultativo)'],[E-47,'Carnaval (ponto facultativo)'],[E-2,'Sexta-feira Santa'],[f(4,21),'Tiradentes'],[f(5,1),'Dia do Trabalho'],[E+60,'Corpus Christi (ponto facultativo)'],[f(9,7),'Independência do Brasil'],[f(9,20),'Revolução Farroupilha (RS)'],[f(10,12),'Nossa Senhora Aparecida'],[f(11,2),'Finados'],[f(11,15),'Proclamação da República'],[f(11,20),'Dia da Consciência Negra'],[f(12,25),'Natal']])}
+const hol=n=>hols(new Date(n*864e5).getUTCFullYear()).get(n);
+
+const app=document.getElementById('app');
+app.innerHTML=`<div id="view"></div>
+<div class="ov" id="ov" hidden><form class="card" id="f" novalidate>
+<h2 id="ft">Registrar afastamento</h2>
+<div class="two"><label>Servidor<select id="fw"></select></label><label>Tipo<select id="fk">${KINDS.map(s=>`<option>${s}</option>`).join('')}</select></label></div>
+<div class="two"><label>Início<input type="date" id="fs"></label><label>Fim<input type="date" id="fe"></label></div>
+<label>Retorno antecipado (convocação) <input type="date" id="fr"></label>
+<p class="mute" id="fd"></p>
+<label>Situação<select id="fst">${STATUS.map(s=>`<option>${s}</option>`).join('')}</select></label>
+<label>Observação<input id="fn" maxlength="140" placeholder="Ex.: 1º período, combinado com a chefia"></label>
+<p class="err" id="ferr"></p>
+<div class="btns"><button type="button" class="ghost danger" id="fdel">Excluir</button><span></span><button type="button" class="ghost" id="fc">Cancelar</button><button class="pri" type="submit">Salvar</button></div>
+</form></div>`;
+const $=id=>document.getElementById(id);
+
+function render(){
+  const vt=VT();
+  const V=VIEWS.find(x=>x.k===viewK)||VIEWS[0];
+  const months=[];for(let i=0;i<V.n;i++){const y=V.y+Math.floor((V.m+i)/12),m=(V.m+i)%12;months.push([y,m])}
+  const r0=Date.UTC(months[0][0],months[0][1],1)/864e5,last=months[months.length-1],r1=Date.UTC(last[0],last[1]+1,0)/864e5;
+  const off={},rec={};vt.forEach(t=>{off[t.id]=new Map();rec[t.id]=new Map()});
+  const inR=state.periods.filter(p=>sel.has(p.who)&&dn(p.end)>=r0&&dn(p.start)<=r1).sort((a,b)=>a.start.localeCompare(b.start)||String(a.who).localeCompare(b.who));
+  inR.forEach(p=>{if(!off[p.who])return;const e=effEnd(p);
+    for(let n=Math.max(dn(p.start),r0);n<=Math.min(dn(p.end),r1);n++)(n<=e?off:rec)[p.who].set(n,p)});
+  const sob=vt.filter(isSob).map(t=>t.id);
+  const cnt=n=>vt.filter(t=>off[t.id].has(n)).length;
+  const crit=n=>sob.length>1&&sob.every(id=>off[id].has(n));
+  let warn=0,cr=0;for(let n=r0;n<=r1;n++){if(cnt(n)>=2)warn++;if(crit(n))cr++}
+  const team=vt.map(t=>{let fe=0,lp=0;off[t.id].forEach(p=>p.kind==='Férias'?fe++:lp++);
+    return `<li><b><i class="dot" style="--c:${col(t)}"></i>${esc(t.name)}</b><span class="num">${fe} <small>${pl(fe,'dia','dias')} de férias</small></span>${lp?`<span> · ${lp} de LP</span>`:''}<br><span>${esc(t.role)}</span></li>`}).join('');
+  const alert=warn||cr?`<p class="alert"><strong>${warn}</strong> ${pl(warn,'dia','dias')} com 2 ou mais servidores afastados${sob.length>1?` · <strong>${cr}</strong> ${pl(cr,'dia','dias')} com os dois do sobreaviso afastados ao mesmo tempo`:''}.</p>`:`<p class="alert">Nenhuma sobreposição de afastamentos no período.</p>`;
+  const cal=months.map(([Y,m])=>{
+    const first=Date.UTC(Y,m,1)/864e5,nd=new Date(Date.UTC(Y,m+1,0)).getUTCDate();
+    const info=d=>{const n=first+d-1,wd=new Date(n*864e5).getUTCDay();return{n,wd,we:wd===0||wd===6,h:hol(n)}};
+    let head=`<tr><th class="mn">${MESES[m]} <small>${Y}</small></th>`;
+    for(let d=1;d<=31;d++){if(d>nd){head+='<th class="x"></th>';continue}const{wd,we,h}=info(d);head+=`<th class="${we?'we':''}${h?' hol':''}"${h?` title="${esc(h)}"`:''}><b>${d}</b><small>${WK[wd]}</small></th>`}
+    const rows=vt.map(t=>{let r=`<tr style="--c:${col(t)}"><th>${esc(t.name)}${isSob(t)?'<span class="tag">sobreaviso</span>':''}</th>`;
+      for(let d=1;d<=31;d++){if(d>nd){r+='<td class="x"></td>';continue}const{n,we,h}=info(d),p=off[t.id].get(n),q=rec[t.id].get(n);
+        const c=[we&&'we',h&&'hol',p&&(p.kind==='Férias'?'fe':'lp'),p&&p.status!=='Aprovada'&&'tn',p&&n===dn(p.start)&&'s',p&&n===effEnd(p)&&'e',q&&'rc'].filter(Boolean).join(' ');
+        const x=p||q;
+        const tip=p?`${t.name} · ${p.kind}: ${br(p.start)} a ${br(p.end)} · ${p.status}${p.recall?' · retorno antecipado em '+br(p.recall):''}${p.note?' · '+p.note:''}`
+          :q?`${t.name} · retorno antecipado em ${br(q.recall)} (saldo de ${total(q)-eff(q)} dias de ${q.kind.toLowerCase()})`
+          :`${t.name} · ${br(ds(n))} · clique para registrar`;
+        r+=`<td class="${c}" data-who="${esc(t.id)}" data-d="${ds(n)}"${x?` data-id="${esc(x.id)}"`:''} title="${esc(tip)}"></td>`}
+      return r+'</tr>'}).join('');
+    let tot='<tr class="tot"><th>Afastados</th>';
+    for(let d=1;d<=31;d++){if(d>nd){tot+='<td class="x"></td>';continue}const n=first+d-1,c=cnt(n);tot+=`<td class="${c>=2?'warn':''}${crit(n)?' crit':''}">${c||''}</td>`}
+    return `<table class="cal"><thead>${head}</tr></thead><tbody>${rows}${tot}</tr></tbody></table>`}).join('');
+  const list=inR.length?`<div class="scroll"><table class="list"><thead><tr><th>Servidor</th><th>Tipo</th><th>Período</th><th style="text-align:right">Dias</th><th>Situação</th><th class="o">Observação</th><th class="noprint"></th></tr></thead><tbody>${inR.map(p=>{const t=who(p.who),sal=total(p)-eff(p);
+    return `<tr><td>${esc(t?t.name:p.who)}</td><td class="kind">${esc(p.kind)}</td><td class="d">${br(p.start)} a ${br(p.end)}${p.recall?`<span class="sub">Retorno antecipado em ${br(p.recall)} · saldo de ${sal} ${pl(sal,'dia','dias')}</span>`:''}</td><td class="n">${p.recall?`${eff(p)}<span class="sub">de ${total(p)}</span>`:total(p)}</td><td><span class="pill ${esc(p.status)}">${esc(p.status)}</span></td><td class="o">${esc(p.note)}</td><td class="noprint"><button class="link" data-edit="${esc(p.id)}">Editar</button></td></tr>`}).join('')}</tbody></table></div>`
+    :`<p class="empty">Nenhum período registrado em ${esc(V.label)}. Clique num dia da linha do servidor ou em “Registrar”.</p>`;
+  $('view').innerHTML=`
+<header class="band top"><div class="wrap">
+<div class="ponly"><b>Férias e licenças da equipe${esc(grpLabel())} · ${esc(pOnly?calLab():V.label)}</b><span>Impresso em ${today.toLocaleDateString('pt-BR')}</span></div>
+<div class="row noprint"><h1>Férias e licenças da equipe</h1>
+<div class="acts"><button class="pri" data-act="add">+ Registrar</button><button class="ghost" data-act="print">Imprimir</button></div></div>
+<div class="flt noprint" role="group" aria-label="Quem mostrar"><span>Mostrar:</span>${[['all','Equipe toda'],['fisc','Fiscalização'],['sob','Sobreaviso']].map(([g,l])=>`<button data-grp="${g}" aria-pressed="${sameSet(grpIds(g))}">${l}</button>`).join('')}<span class="sep"></span>${state.team.map(t=>`<button class="tog" data-tog="${esc(t.id)}" aria-pressed="${sel.has(t.id)}"><i class="dot" style="--c:${col(t)}"></i>${esc(t.name)}</button>`).join('')}</div>
+<p class="hint noprint" id="hint" hidden>Se a janela de impressão não abrir aqui, abra o arquivo HTML no navegador e use Ctrl+P (A4 paisagem).</p>
+<ul class="team">${team}</ul>${alert}
+</div></header>
+<section class="band"><div class="wrap msec${calN>=3?' n3':''}">
+<div><div class="mctl"><button class="rnd" data-cal="prev" aria-label="Mês anterior">‹</button><button class="rnd" data-cal="next" aria-label="Próximo mês">›</button><button class="txt" data-cal="today">Hoje</button><div class="seg" role="group" aria-label="Meses exibidos"><button data-caln="1" aria-pressed="${calN===1}">1 mês</button><button data-caln="3" aria-pressed="${calN===3}">3 meses</button><button data-caln="6" aria-pressed="${calN===6}">6 meses</button></div><label class="chk"><input type="checkbox" id="ponly"${pOnly?' checked':''}> Imprimir só o calendário mensal</label></div>
+<div class="mcals">${Array.from({length:calN},(_,i)=>{const mm=calM+i;return monthCal(calY+Math.floor(mm/12),mm%12)}).join('')}</div>${resumo()}</div>
+<aside class="upcol"${calN>1?' hidden':''}><h3 class="noprint" style="font:700 20px 'Space Grotesk',sans-serif;margin:0 0 6px">Próximos afastamentos</h3>${upcoming()}</aside>
+</div></section>
+<section class="band sec-gantt"><div class="wrap">
+<div class="hrow"><h2>Visão anual</h2><div class="views noprint" role="group" aria-label="Período exibido">${VIEWS.map(v=>`<button data-view="${v.k}" aria-pressed="${v.k===V.k}">${esc(v.label)}</button>`).join('')}</div></div>
+<div class="legend"><span><i style="background:var(--ink)"></i>Férias (cor cheia)</span><span><i style="background-image:repeating-linear-gradient(135deg,var(--ink) 0 2px,transparent 2px 6px)"></i>Licença-prêmio (listrado)</span><span><i style="background:var(--ink);opacity:.4"></i>Ainda não aprovado (claro)</span><span>No calendário mensal: cor cheia = férias; contorno + “LP” = licença-prêmio</span><span><i style="background-image:repeating-linear-gradient(135deg,var(--mute) 0 1px,transparent 1px 5px)"></i>Após retorno antecipado</span><span><i style="background:var(--we)"></i>Fim de semana / feriado</span><span><i style="box-shadow:inset 0 0 0 1.5px var(--ink)"></i>2+ afastados</span><span><i style="background:var(--red)"></i>Os dois do sobreaviso afastados</span></div>
+<div class="scroll">${cal}</div>
+</div></section>
+<section class="band sec-list"><div class="wrap"><h2>Períodos registrados · ${esc(V.label)}</h2>${list}</div></section>
+<footer class="band foot"><div class="wrap">Dias contados de forma corrida, início e fim incluídos. Com retorno antecipado, conta-se até a véspera do retorno e o restante fica como saldo. Feriados nacionais e do RS em vermelho no cabeçalho; feriados municipais não incluídos. <span class="noprint" id="st">${esc(statusMsg)}</span></div></footer>`;
+}
+
+function syncP(){document.body.classList.toggle('pcal',pOnly)}
+document.addEventListener('change',e=>{if(e.target.id==='ponly'){pOnly=e.target.checked;try{localStorage.setItem(LS+'-ponly',pOnly?'1':'0')}catch(x){}syncP();render()}});
+function status(m){statusMsg=m;const e=$('st');if(e)e.textContent=m}
+
+function openForm(p,preset){
+  if(readOnly){status('Você tem acesso só de leitura a esta página.');return}
+  const f=$('f');f.dataset.id=p?p.id:'';
+  $('ft').textContent=p?'Editar afastamento':'Registrar afastamento';
+  $('fw').innerHTML=state.team.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}${isSob(t)?' (sobreaviso)':''}</option>`).join('');
+  $('fw').value=p?p.who:(preset&&preset.who)||(state.team[0]||{}).id||'';
+  $('fk').value=p?p.kind:'Férias';
+  $('fs').value=p?p.start:(preset&&preset.start)||'';
+  $('fe').value=p?p.end:'';
+  $('fr').value=p?p.recall:'';
+  $('fst').value=p?p.status:'Planejada';
+  $('fn').value=p?p.note:'';
+  $('ferr').textContent='';
+  const del=$('fdel');del.hidden=!p;del.textContent='Excluir';del.dataset.armed='';
+  upd();$('ov').hidden=false;setTimeout(()=>($('fs').value?$('fe'):$('fs')).focus(),30);
+}
+function closeForm(){$('ov').hidden=true}
+function upd(){const s=$('fs').value,e=$('fe').value,r=$('fr').value;
+  if(s&&e&&dn(e)>=dn(s)){const n=dn(e)-dn(s)+1;let t=`${n} ${pl(n,'dia','dias')} corridos`;
+    if(r&&dn(r)>dn(s)&&dn(r)<=dn(e)){const g=dn(r)-dn(s);t+=` · afastado ${g} ${pl(g,'dia','dias')}, saldo de ${n-g}`}
+    if(n>30)t+=' · atenção: mais de 30 dias';$('fd').textContent=t}else $('fd').textContent='Escolha início e fim.'}
+['fs','fe','fr'].forEach(id=>$(id).addEventListener('input',upd));
+$('fc').addEventListener('click',closeForm);
+$('ov').addEventListener('click',e=>{if(e.target===$('ov'))closeForm()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('ov').hidden)closeForm()});
+$('fdel').addEventListener('click',()=>{const b=$('fdel');
+  if(!b.dataset.armed){b.dataset.armed='1';b.textContent='Confirmar exclusão';return}
+  const id=$('f').dataset.id;state.periods=state.periods.filter(p=>p.id!==id);closeForm();commit()});
+$('f').addEventListener('submit',e=>{e.preventDefault();
+  const id=$('f').dataset.id,w=$('fw').value,s=$('fs').value,en=$('fe').value,r=$('fr').value,err=$('ferr');
+  if(!s||!en){err.textContent='Informe a data de início e a de fim.';return}
+  if(dn(en)<dn(s)){err.textContent='O fim não pode ser antes do início.';return}
+  if(r&&(dn(r)<=dn(s)||dn(r)>dn(en))){err.textContent='O retorno antecipado precisa cair depois do início e até o fim.';return}
+  const rec={id:id||('p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),who:w,kind:$('fk').value,start:s,end:en,recall:r,status:$('fst').value,note:$('fn').value.trim()};
+  const clash=state.periods.find(q=>q.who===w&&q.id!==id&&dn(q.start)<=effEnd(rec)&&effEnd(q)>=dn(s));
+  if(clash){err.textContent=`Sobrepõe outro período desse servidor (${br(clash.start)} a ${br(clash.end)}).`;return}
+  if(id)state.periods=state.periods.map(q=>q.id===id?rec:q);else state.periods.push(rec);
+  closeForm();commit()});
+
+document.addEventListener('click',e=>{
+  const gb=e.target.closest('[data-grp]'),tg=e.target.closest('[data-tog]');
+  if(gb||tg){if(gb)sel=new Set(grpIds(gb.dataset.grp));else{const id=tg.dataset.tog;if(sel.has(id)){if(sel.size>1)sel.delete(id)}else sel.add(id)}
+    try{localStorage.setItem(LS+'-sel',JSON.stringify([...sel]))}catch(x){}render();return}
+  const cb=e.target.closest('[data-cal]');
+  if(cb){const k=cb.dataset.cal;if(k==='today'){calY=TY;calM=TM}else{const t=calY*12+calM+(k==='next'?1:-1);calY=Math.floor(t/12);calM=t%12}render();return}
+  const cn=e.target.closest('[data-caln]');
+  if(cn){calN=+cn.dataset.caln;try{localStorage.setItem(LS+'-caln',String(calN))}catch(x){}render();return}
+  const v=e.target.closest('[data-view]');
+  if(v){viewK=v.dataset.view;try{localStorage.setItem(LS+'-vis',viewK)}catch(x){}render();return}
+  const a=e.target.closest('[data-act]');
+  if(a){const k=a.dataset.act;
+    if(k==='add')openForm(null);
+    if(k==='print'){try{window.print()}catch(x){}if(inFrame){const h=$('hint');if(h)h.hidden=false}}
+    return}
+  const ed=e.target.closest('[data-edit]');
+  if(ed){const p=state.periods.find(q=>q.id===ed.dataset.edit);if(p)openForm(p);return}
+  const td=e.target.closest('td[data-who]');
+  const md=e.target.closest('.md[data-d]');
+  if(md){openForm(null,{start:md.dataset.d});return}
+  if(td&&td.closest('#view')){const p=td.dataset.id&&state.periods.find(q=>q.id===td.dataset.id);p?openForm(p):openForm(null,{who:td.dataset.who,start:td.dataset.d})}
+});
+
+function doc(){
+  const json=JSON.stringify(state).replace(/</g,'\\u003c');
+  return `<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>Férias da equipe</title>\n<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n<link href="${FONT}" rel="stylesheet">\n<style id="css">${CSS}</style>\n</head>\n<body>\n<div id="app"></div>\n<script type="application/json" id="state">${json}<\/script>\n<script id="main">${MAIN}<\/script>\n</body>\n</html>\n`;
+}
+function commit(){render();save()}
+const SUPABASE_URL = 'https://tnnmpgkldsyoklhldvwh.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_wwhvBl2F08N_5DYW0e101g_RDzWDPPa';
+const SB_ENDPOINT = `${SUPABASE_URL}/rest/v1/ferias_equipe`;
+const SB_HEADERS = {
+  'apikey': SUPABASE_KEY,
+  'Authorization': `Bearer ${SUPABASE_KEY}`,
+  'Content-Type': 'application/json'
+};
+
+function save(){
+  try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}
+  clearTimeout(timer);
+  status('Salvando na nuvem…');
+  timer = setTimeout(async()=>{
+    try{
+      const res = await fetch(SB_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          ...SB_HEADERS,
+          'Prefer': 'resolution=merge-duplicates,return=minimal'
+        },
+        body: JSON.stringify({
+          id: 'principal',
+          dados: state,
+          atualizado_em: new Date().toISOString()
+        })
+      });
+      if(res.ok){
+        status('Salvo na nuvem (sincronizado com a equipe).');
+      } else {
+        const errTxt = await res.text();
+        status('Erro ao salvar (' + res.status + '): ' + errTxt.slice(0, 80));
+      }
+    }catch(e){
+      status('Sem conexão com a nuvem — salvo apenas neste navegador.');
+    }
+  }, 350);
+}
+
+async function initSupabase(){
+  mode='cloud';
+  try{const s=JSON.parse(localStorage.getItem(LS)||'null');if(s&&Array.isArray(s.periods)){const n=norm(s);if(!n.team.length)n.team=state.team;state=n}}catch(e){}
+  statusMsg='Sincronizando com a equipe…';
+  render();
+  try{
+    const res = await fetch(`${SB_ENDPOINT}?id=eq.principal&select=dados`, {
+      method: 'GET',
+      headers: SB_HEADERS
+    });
+    if(res.ok){
+      const rows = await res.json();
+      if(Array.isArray(rows) && rows.length && rows[0].dados && Array.isArray(rows[0].dados.periods)){
+        const n = norm(rows[0].dados);
+        if(!n.team.length) n.team = state.team;
+        state = n;
+        try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}
+        status('Sincronizado com a nuvem da equipe.');
+        render();
+        return;
+      } else {
+        await fetch(SB_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            ...SB_HEADERS,
+            'Prefer': 'resolution=merge-duplicates,return=minimal'
+          },
+          body: JSON.stringify({
+            id: 'principal',
+            dados: state,
+            atualizado_em: new Date().toISOString()
+          })
+        });
+        status('Banco na nuvem inicializado.');
+        render();
+        return;
+      }
+    }
+    status('Erro ao sincronizar (' + res.status + ').');
+  }catch(e){
+    status('Modo offline (usando cópia local).');
+  }
+}
+
+render();syncP();
+initSupabase();
+}
+</script>
+</body>
+</html>
